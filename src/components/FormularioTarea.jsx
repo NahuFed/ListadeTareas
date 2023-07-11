@@ -4,6 +4,8 @@ import Button from "react-bootstrap/Button";
 import ListaTareas from "./ListaTareas";
 import { useState, useEffect } from "react";
 
+
+
 const FormularioTarea = () => {
   let tareasDelLocalStorage = JSON.parse(localStorage.getItem('listaTareas')) || []; // guardo en una variable las tareas del localstorage
   const [tarea, setTarea] = useState("");
@@ -25,6 +27,16 @@ const FormularioTarea = () => {
     let copiaTareas = arrayTareas.filter((itemTarea)=> itemTarea !== nombreTarea)
     setArrayTareas(copiaTareas)
   }
+   const editarTarea = (nombreTarea, nuevoNombreTarea) => {
+    const copiaTareas = arrayTareas.map((itemTarea) => {
+      if (itemTarea === nombreTarea) {
+        return nuevoNombreTarea;
+      }
+      return itemTarea;
+    });
+  
+    setArrayTareas(copiaTareas);
+  };
 
   return (
     <>
@@ -41,7 +53,7 @@ const FormularioTarea = () => {
           </Button>
         </Form.Group>
       </Form>
-      <ListaTareas tareas={arrayTareas} borrarTarea={borrarTarea}></ListaTareas>
+      <ListaTareas tareas={arrayTareas} borrarTarea={borrarTarea} editarTarea={editarTarea}></ListaTareas>
     </>
   );
 };
