@@ -4,7 +4,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 
 
 
-const EditarTareaModal = ({ nombreTarea, editarTarea }) => {
+const EditarTareaModal = ({ tarea, editarTarea }) => {
   const [showModal, setShowModal] = useState(false);
   const [nuevoNombreTarea, setNuevoNombreTarea] = useState('');
 
@@ -14,7 +14,7 @@ const EditarTareaModal = ({ nombreTarea, editarTarea }) => {
   };
 
   const handleGuardar = () => {
-    editarTarea(nombreTarea, nuevoNombreTarea);
+    editarTarea(tarea._id, nuevoNombreTarea);
     handleClose();
   };
 

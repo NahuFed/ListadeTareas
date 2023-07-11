@@ -4,18 +4,20 @@ import EditarTareaModal from './EditarTareaModal';
 
 
 
-const ItemTarea = (props) => {
-    return (
-        <div className='p-3'>
-            <ListGroup.Item className='d-flex justify-content-between'>
-                {props.nombreTarea}
-                <div>
-                <EditarTareaModal editarTarea={props.editarTarea} nombreTarea={props.nombreTarea} />
-                <Button variant='danger' className='ms-2' onClick={()=> props.borrarTarea(props.nombreTarea)}>Borrar</Button>
-                </div>
-                    </ListGroup.Item>
-        </div>
-    );
+
+const ItemTarea = ({ tarea, editarTarea,borrarTarea }) => { 
+
+  return (
+    <ListGroup.Item className="d-flex justify-content-between">
+      {tarea.tarea}
+      <div>
+        <EditarTareaModal tarea={tarea} editarTarea={editarTarea} />
+        <Button variant="danger" className="ms-2" onClick={()=>{borrarTarea(tarea._id)}}>
+          Borrar
+        </Button>
+      </div>
+    </ListGroup.Item>
+  );
 };
 
 export default ItemTarea;

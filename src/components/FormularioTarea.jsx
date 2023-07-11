@@ -1,41 +1,75 @@
-// import { Form, Button } from "react-bootstrap"; se pueden agregar varios componentes entre llaves
-import Form from "react-bootstrap/Form"; //Se importa uno solo por linea
-import Button from "react-bootstrap/Button";
+import React, { useState, useEffect } from "react";
+import { Form, Button } from "react-bootstrap";
 import ListaTareas from "./ListaTareas";
-import { useState, useEffect } from "react";
-
-
+import { obtenerTareas, crearTarea, borrarTarea, editarTarea } from "../helpers/queries";
 
 const FormularioTarea = () => {
-  let tareasDelLocalStorage = JSON.parse(localStorage.getItem('listaTareas')) || []; // guardo en una variable las tareas del localstorage
   const [tarea, setTarea] = useState("");
-  const [arrayTareas, setArrayTareas] = useState(tareasDelLocalStorage); //se cargan las tareas del localstorage en el montaje
+  const [arrayTareas, setArrayTareas] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const tareas = await obtenerTareas();
+        setArrayTareas(tareas);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
 
 
-  //ciclo de vida
-  useEffect(()=>{
-    localStorage.setItem('listaTareas', JSON.stringify(arrayTareas)) ;
-  },[arrayTareas])
-//   se agrega un segundo parametro que indica el state donde se ejecutara la funcion
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setArrayTareas([...arrayTareas, tarea]);
-    setTarea("");
+    try {
+      const nuevaTarea = { tarea };
+      const respuesta = await crearTarea(nuevaTarea);
+      if (respuesta.status === 201) {
+        const tareasActualizadas = await obtenerTareas()
+        setArrayTareas(tareasActualizadas);
+        setTarea("");
+        
+      } else {
+        console.log("Hubo un error al crear la tarea");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const borrarTarea = (nombreTarea) =>{
-    let copiaTareas = arrayTareas.filter((itemTarea)=> itemTarea !== nombreTarea)
-    setArrayTareas(copiaTareas)
-  }
-   const editarTarea = (nombreTarea, nuevoNombreTarea) => {
-    const copiaTareas = arrayTareas.map((itemTarea) => {
-      if (itemTarea === nombreTarea) {
-        return nuevoNombreTarea;
+  const handleBorrarTarea = async (id) => {
+    try {
+      const respuesta = await borrarTarea(id);
+      if (respuesta && respuesta.status === 200) {
+        const nuevasTareas = arrayTareas.filter((tarea) => tarea._id !== id);
+        setArrayTareas(nuevasTareas);
+      } else {
+        console.log("Hubo un error al borrar la tarea");
       }
-      return itemTarea;
-    });
-  
-    setArrayTareas(copiaTareas);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleEditarTarea = async (id, nuevoNombreTarea) => {
+    try {
+      const respuesta = await editarTarea({ tarea: nuevoNombreTarea }, id);
+      if (respuesta && respuesta.status === 200) {
+        const nuevasTareas = arrayTareas.map((tarea) => {
+          if (tarea._id === id) {
+            return { ...tarea, tarea: nuevoNombreTarea };
+          }
+          return tarea;
+        });
+        setArrayTareas(nuevasTareas);
+      } else {
+        console.log("Hubo un error al editar la tarea");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -53,7 +87,11 @@ const FormularioTarea = () => {
           </Button>
         </Form.Group>
       </Form>
-      <ListaTareas tareas={arrayTareas} borrarTarea={borrarTarea} editarTarea={editarTarea}></ListaTareas>
+      <ListaTareas
+        tareas={arrayTareas}
+        borrarTarea={handleBorrarTarea}
+        editarTarea={handleEditarTarea}
+      />
     </>
   );
 };
